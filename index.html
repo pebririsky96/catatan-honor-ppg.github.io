@@ -5,173 +5,335 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Pendataan Honor</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
         
-        /* Form Styles */
+        /* LOGIN PAGE */
+        #login-page {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 999; display: flex; justify-content: center; align-items: center;
+        }
+        .login-box { padding: 30px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 300px; }
+        .login-box input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        
+        /* MAIN APP */
+        #app-page { display: none; max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #218838; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-
-        /* Table Styles */
-        .table-container { margin-top: 30px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
-        th { background-color: #007bff; color: white; }
-        a.btn-link { text-decoration: none; color: white; background: #17a2b8; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         
-        #loading { display: none; text-align: center; margin-top: 10px; color: #666; }
+        /* Buttons */
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+        .btn-green { background: #28a745; width: 100%; }
+        .btn-blue { background: #007bff; }
+        .btn-red { background: #dc3545; }
+        .btn-yellow { background: #ffc107; color: black; }
+        .btn-small { padding: 5px 10px; font-size: 12px; margin-right: 5px; }
+
+        /* Table & Pagination */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #007bff; color: white; }
+        
+        .pagination-controls { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Notifikasi */
+        #status-bar { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 10px 20px; border-radius: 5px; display: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Form Input Honor Kegiatan</h2>
-    
-    <form id="honorForm">
-        <div class="form-group">
-            <label for="kegiatan">Nama Kegiatan</label>
-            <input type="text" id="kegiatan" name="kegiatan" required placeholder="Contoh: Rapat Koordinasi Tahunan">
+    <div id="login-page">
+        <div class="login-box">
+            <h2>Login Petugas</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn btn-blue" onclick="handleLogin()">MASUK</button>
+            <p id="login-error" style="color:red; display:none; margin-top:10px;">Login Gagal!</p>
+        </div>
+    </div>
+
+    <div id="app-page">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>Data Honor Kegiatan</h2>
+            <button class="btn btn-red" style="width:auto;" onclick="logout()">Logout</button>
+        </div>
+        
+        <form id="honorForm" style="background:#f9f9f9; padding:15px; border-radius:5px; margin-bottom:20px;">
+            <input type="hidden" id="dataId"> <div class="form-group">
+                <label>Nama Kegiatan</label>
+                <input type="text" id="kegiatan" required>
+            </div>
+            <div class="form-group">
+                <label>Jumlah Honor (Rp)</label>
+                <input type="number" id="honor" required>
+            </div>
+            <div class="form-group">
+                <label>Upload Bukti (Biarkan kosong jika tidak mengubah foto saat edit)</label>
+                <input type="file" id="bukti">
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button type="submit" id="submitBtn" class="btn btn-green">Simpan Data</button>
+                <button type="button" id="cancelBtn" class="btn btn-yellow" style="display:none;" onclick="resetForm()">Batal Edit</button>
+            </div>
+        </form>
+
+        <div class="pagination-controls">
+            <div>
+                Tampilkan 
+                <select id="pageSize" onchange="changePageSize()" style="width:auto; display:inline-block;">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select> Data
+            </div>
+            <div>
+                <button class="btn btn-blue btn-small" onclick="prevPage()">Prev</button>
+                <span id="pageInfo">Hal 1</span>
+                <button class="btn btn-blue btn-small" onclick="nextPage()">Next</button>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="honor">Jumlah Honor (Rp)</label>
-            <input type="number" id="honor" name="honor" required placeholder="Contoh: 500000">
-        </div>
-
-        <div class="form-group">
-            <label for="bukti">Upload Bukti (Foto/PDF)</label>
-            <input type="file" id="bukti" name="bukti" accept="image/*,application/pdf" required>
-        </div>
-
-        <button type="submit" id="submitBtn">Simpan Data</button>
-        <div id="loading">Sedang mengirim data ke server...</div>
-    </form>
-
-    <hr>
-
-    <h3>Data Tersimpan</h3>
-    <button onclick="loadData()" style="background:#007bff; width:auto; padding:8px 15px; margin-bottom:10px;">Refresh Data</button>
-    <div class="table-container">
-        <table id="dataTable">
+        <table>
             <thead>
                 <tr>
-                    <th>Waktu</th>
                     <th>Kegiatan</th>
                     <th>Honor</th>
                     <th>Bukti</th>
+                    <th style="width:120px;">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
-</div>
+
+    <div id="status-bar">Proses di latar belakang...</div>
 
 <script>
-    // GANTI URL INI DENGAN URL DEPLOYMENT ANDA DARI LANGKAH 2
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxICi-eeq5H0uYoHzPzXAoIvX2Mlxfp9HAzhg8CeTbDRfIYBtX5D-X0gFIgnrkXWK8vWw/exec';
+    // KONFIGURASI
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTLIAgA1vLXQ6q782eZGzj7si3c8sRIs6yho_pLyt_-aSHLfdjU-t985otAtVnG8XUcA/exec';
+    
+    // VARIABEL GLOBAL
+    let globalData = []; // Menyimpan semua data lokal
+    let currentPage = 1;
+    let itemsPerPage = 10;
 
-    const form = document.getElementById('honorForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loadingText = document.getElementById('loading');
+    // --- 1. LOGIN SYSTEM ---
+    function handleLogin() {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        if(u === 'ppg' && p === 'fkipbagus') {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('app-page').style.display = 'block';
+            fetchData(); // Ambil data saat login sukses
+        } else {
+            document.getElementById('login-error').style.display = 'block';
+        }
+    }
+    
+    function logout() {
+        location.reload();
+    }
 
-    // 1. Fungsi Handle Submit (Create)
-    form.addEventListener('submit', e => {
+    // --- 2. CORE FUNCTIONS (OPTIMISTIC UI) ---
+    
+    // Generate ID Unik (di Frontend agar bisa langsung tampil)
+    function generateId() {
+        return 'ID-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Notifikasi Toast
+    function showStatus(msg) {
+        const el = document.getElementById('status-bar');
+        el.innerText = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    // CREATE / UPDATE
+    document.getElementById('honorForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // UI Loading
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Mengirim...";
-        loadingText.style.display = "block";
-
+        const id = document.getElementById('dataId').value;
+        const kegiatan = document.getElementById('kegiatan').value;
+        const honor = document.getElementById('honor').value;
         const fileInput = document.getElementById('bukti');
-        const file = fileInput.files[0];
         
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+        let action = id ? "update" : "create";
+        let newId = id ? id : generateId();
+        let fileUrlDisplay = id ? (globalData.find(x => x[0] == id)[4] || "#") : "#"; // Link sementara
         
-        reader.onload = function() {
-            const base64Data = reader.result.split(',')[1]; // Ambil bagian base64 murni
+        // --- OPTIMISTIC UI UPDATE ---
+        // Kita update tampilan DULUAN sebelum kirim ke server
+        if (action === "create") {
+            // [ID, Waktu, Kegiatan, Honor, Link]
+            const newRow = [newId, new Date().toISOString(), kegiatan, honor, fileUrlDisplay];
+            globalData.push(newRow); // Tambah ke array lokal
+        } else {
+            // Edit array lokal
+            let idx = globalData.findIndex(x => x[0] == id);
+            if (idx !== -1) {
+                globalData[idx][2] = kegiatan;
+                globalData[idx][3] = honor;
+                // Link tidak berubah di UI lokal sampai refresh, kecuali kita mau kompleks
+            }
+        }
+        
+        renderTable(); // Refresh tabel seketika!
+        resetForm();
+        showStatus("Data diperbarui! Sinkronisasi ke server...");
 
-            const payload = {
-                kegiatan: document.getElementById('kegiatan').value,
-                honor: document.getElementById('honor').value,
-                fileName: file.name,
-                mimeType: file.type,
-                fileData: base64Data
-            };
-
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.result === 'success'){
-                    alert("Data berhasil disimpan!");
-                    form.reset();
-                    loadData(); // Reload tabel
-                } else {
-                    alert("Gagal: " + data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error))
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Simpan Data";
-                loadingText.style.display = "none";
-            });
+        // --- PROSES BACKGROUND (KIRIM KE GOOGLE) ---
+        let payload = {
+            action: action,
+            id: newId,
+            kegiatan: kegiatan,
+            honor: honor
         };
+
+        // Handle File jika ada
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function() {
+                payload.fileData = reader.result.split(',')[1];
+                payload.fileName = file.name;
+                payload.mimeType = file.type;
+                sendToGAS(payload);
+            };
+        } else {
+            sendToGAS(payload);
+        }
     });
 
-    // 2. Fungsi Load Data (Read)
-    function loadData() {
-        const tbody = document.querySelector('#dataTable tbody');
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Memuat data...</td></tr>';
-
-        fetch(SCRIPT_URL)
-        .then(response => response.json())
-        .then(data => {
-            tbody.innerHTML = ''; // Clear loading text
-            
-            // Urutkan dari yang terbaru (opsional)
-            data.reverse();
-
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                
-                // Format Waktu
-                const date = new Date(row[0]);
-                const dateStr = date.toLocaleDateString('id-ID');
-
-                // Format Rupiah
-                const honor = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(row[2]);
-
-                // Link File
-                let linkHtml = row[3] ? `<a href="${row[3]}" target="_blank" class="btn-link">Lihat Bukti</a>` : 'Tidak ada';
-
-                tr.innerHTML = `
-                    <td>${dateStr}</td>
-                    <td>${row[1]}</td>
-                    <td>${honor}</td>
-                    <td>${linkHtml}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+    function sendToGAS(payload) {
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
         })
-        .catch(error => {
-            tbody.innerHTML = '<tr><td colspan="4">Gagal memuat data.</td></tr>';
-            console.error(error);
+        .then(res => res.json())
+        .then(data => {
+            console.log("Server synced:", data);
+            // Jika create baru dan ada file, server balikin URL asli.
+            // Kita bisa refresh data pelan-pelan atau biarkan user refresh manual nanti.
+        })
+        .catch(err => console.error("Sync failed:", err));
+    }
+
+    // DELETE
+    window.deleteItem = function(id) {
+        if(!confirm("Hapus data ini?")) return;
+
+        // Optimistic Delete: Hapus dari array lokal dulu
+        globalData = globalData.filter(row => row[0] !== id);
+        renderTable();
+        showStatus("Data dihapus dari layar. Menghapus di server...");
+
+        // Kirim perintah hapus ke server
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "delete", id: id })
         });
     }
 
-    // Load data saat halaman dibuka pertama kali
-    loadData();
+    // EDIT SETUP
+    window.editItem = function(id) {
+        let item = globalData.find(row => row[0] === id);
+        if(item) {
+            document.getElementById('dataId').value = item[0];
+            document.getElementById('kegiatan').value = item[2];
+            document.getElementById('honor').value = item[3];
+            
+            document.getElementById('submitBtn').innerText = "Update Data";
+            document.getElementById('submitBtn').classList.remove('btn-green');
+            document.getElementById('submitBtn').classList.add('btn-blue');
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            window.scrollTo(0,0);
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('honorForm').reset();
+        document.getElementById('dataId').value = "";
+        document.getElementById('submitBtn').innerText = "Simpan Data";
+        document.getElementById('submitBtn').classList.add('btn-green');
+        document.getElementById('submitBtn').classList.remove('btn-blue');
+        document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    // --- 3. FETCH & RENDER DATA ---
+
+    function fetchData() {
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="4">Mengambil data terbaru...</td></tr>';
+        fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+            // Data dari sheet: [ID, Waktu, Kegiatan, Honor, Link]
+            // Kita balik urutannya biar yang baru diatas
+            globalData = data.reverse(); 
+            renderTable();
+        });
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+
+        // Logika Pagination
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedItems = globalData.slice(start, end);
+
+        if(paginatedItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada data</td></tr>';
+            return;
+        }
+
+        paginatedItems.forEach(row => {
+            let honorFmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(row[3]);
+            let linkHtml = (row[4] && row[4] !== "#") ? `<a href="${row[4]}" target="_blank">Lihat</a>` : '-';
+            
+            // Row[0] adalah ID
+            let tr = `
+                <tr>
+                    <td>${row[2]}</td>
+                    <td>${honorFmt}</td>
+                    <td>${linkHtml}</td>
+                    <td>
+                        <button class="btn btn-yellow btn-small" onclick="editItem('${row[0]}')">Edit</button>
+                        <button class="btn btn-red btn-small" onclick="deleteItem('${row[0]}')">Hapus</button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += tr;
+        });
+
+        // Update Info Halaman
+        document.getElementById('pageInfo').innerText = `Hal ${currentPage} dari ${Math.ceil(globalData.length / itemsPerPage)}`;
+    }
+
+    // Pagination Controls
+    window.changePageSize = function() {
+        itemsPerPage = parseInt(document.getElementById('pageSize').value);
+        currentPage = 1;
+        renderTable();
+    }
+
+    window.nextPage = function() {
+        if ((currentPage * itemsPerPage) < globalData.length) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    window.prevPage = function() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
 
 </script>
 
