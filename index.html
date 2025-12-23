@@ -2,70 +2,81 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Input Data Honor</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        /* LOGIN PAGE STYLE */
+        /* LOGIN PAGE */
         #login-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .login-box { padding: 40px; border: 1px solid #ddd; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 300px; background: white; }
+        .login-box { padding: 30px; border: 1px solid #ddd; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 320px; background: white; }
 
-        /* MAIN APP STYLE */
-        #app-page { display: none; width: 100%; max-width: 500px; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        /* MAIN APP */
+        #app-page { display: none; width: 100%; max-width: 500px; padding: 15px; box-sizing: border-box; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        h2 { margin-top: 0; color: #333; text-align: center; margin-bottom: 25px; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h2 { margin-top: 0; color: #333; text-align: center; margin-bottom: 20px; font-size: 22px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 14px;}
         
         /* FORM INPUTS */
         .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #444; font-size: 14px; }
-        input[type="text"], input[type="password"], input[type="number"], input[type="date"], input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: #007bff; outline: none; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 14px; }
         
+        /* Input Styling agar enak di HP */
+        input[type="text"], input[type="password"], input[type="number"], input[type="date"] { 
+            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; /* Font 16px mencegah zoom otomatis di iPhone */
+        }
+        
+        /* Khusus Input File agar tombolnya besar */
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background: #f8f9fa;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
         /* BUTTONS */
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; margin-top: 10px;}
+        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,123,255,0.3); }
         button:hover { background-color: #0056b3; }
         
-        .btn-logout { background: transparent; color: #dc3545; border: 1px solid #dc3545; padding: 5px 15px; font-size: 13px; width: auto; margin: 0; }
-        .btn-logout:hover { background: #dc3545; color: white; }
-
-        /* LOADING & ERROR */
-        #loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); z-index: 100; justify-content: center; align-items: center; flex-direction: column; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;}
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-logout { background: transparent; color: #dc3545; border: 1px solid #dc3545; padding: 5px 12px; font-size: 12px; width: auto; margin: 0; box-shadow: none; }
         
         #login-error { color: red; margin-top: 15px; font-size: 14px; display: none; }
+
+        /* LOADING */
+        #loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); z-index: 100; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div id="login-page">
         <div class="login-box">
-            <h2>Login Petugas</h2>
+            <h3>Login Petugas</h3>
             <div class="form-group">
-                <input type="text" id="username" placeholder="Username">
+                <input type="text" id="username" placeholder="Username" autocapitalize="none">
             </div>
             <div class="form-group">
                 <input type="password" id="password" placeholder="Password">
             </div>
             <button onclick="handleLogin()">MASUK</button>
-            <p id="login-error">Username atau Password salah!</p>
+            <p id="login-error">Username / Password Salah</p>
         </div>
     </div>
 
     <div id="app-page">
         <div class="card">
             <div class="header-top">
-                <span style="font-weight:bold; color:#555;">Halo, Admin</span>
+                <span>Halo, <b>Admin</b></span>
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
             
-            <h2>Form Input Kegiatan</h2>
+            <h2>Input Honor Kegiatan</h2>
             
             <form id="honorForm">
-                
                 <div class="form-group">
                     <label>Tanggal Acara</label>
                     <input type="date" id="tglAcara" required>
@@ -78,18 +89,18 @@
 
                 <div class="form-group">
                     <label>Nama Kegiatan</label>
-                    <input type="text" id="kegiatan" required placeholder="Contoh: Rapat Koordinasi">
+                    <input type="text" id="kegiatan" required placeholder="Nama kegiatan...">
                 </div>
 
                 <div class="form-group">
                     <label>Jumlah Honor (Rp)</label>
-                    <input type="number" id="honor" required placeholder="Contoh: 500000">
+                    <input type="number" id="honor" required placeholder="0">
                 </div>
 
                 <div class="form-group">
-                    <label>Upload Bukti Pembayaran</label>
+                    <label style="color:#d9534f;">📸 Ambil Foto (Kamera) / Upload File</label>
                     <input type="file" id="bukti" accept="image/*,application/pdf" required>
-                    <small style="color:gray; font-size:11px;">Wajib upload (JPG/PNG/PDF)</small>
+                    <small style="color:gray; font-size:11px; display:block; margin-top:5px;">Bisa foto langsung atau pilih file PDF</small>
                 </div>
 
                 <button type="submit" id="submitBtn">Kirim Data</button>
@@ -99,19 +110,19 @@
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <div id="loading-text" style="font-weight:bold; color:#555;">Sedang menyimpan data...</div>
+        <div id="loading-text" style="font-weight:bold; color:#555;">Sedang Upload...</div>
     </div>
 
 <script>
-    // URL SCRIPT SAMA SEPERTI SEBELUMNYA
+    // URL SCRIPT GOOGLE APPS SCRIPT ANDA
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwrBQ_5VZ0h6w1AKAvVSKit4ylNyGzYtoQN_C_hge4Ouw5pCU-BG-AQWTg7DauF37CYtA/exec';
 
-    // --- LOGIKA LOGIN ---
     function handleLogin() {
         const u = document.getElementById('username').value;
         const p = document.getElementById('password').value;
         
-        if(u === 'ppg' && p === 'fkipbagus') {
+        // Login Hardcode
+        if(u.toLowerCase() === 'ppg' && p === 'fkipbagus') {
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('app-page').style.display = 'block';
         } else {
@@ -119,24 +130,17 @@
         }
     }
 
-    function logout() {
-        location.reload();
-    }
+    function logout() { location.reload(); }
 
-    // --- LOGIKA KIRIM DATA ---
+    function generateId() { return 'ID-' + Math.random().toString(36).substr(2, 9); }
+
     const form = document.getElementById('honorForm');
     const loadingOverlay = document.getElementById('loading-overlay');
 
-    function generateId() { 
-        return 'ID-' + Math.random().toString(36).substr(2, 9); 
-    }
-
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        
         loadingOverlay.style.display = "flex";
 
-        // Ambil data dari form
         const tglAcara = document.getElementById('tglAcara').value;
         const tglCair = document.getElementById('tglCair').value;
         const kegiatan = document.getElementById('kegiatan').value;
@@ -144,6 +148,9 @@
         const fileInput = document.getElementById('bukti');
         const file = fileInput.files[0];
 
+        // Kompresi/Resize gambar bisa ditambahkan di sini jika perlu, 
+        // tapi untuk sekarang kita kirim langsung (hati-hati jika file > 5MB)
+        
         const reader = new FileReader();
         reader.readAsDataURL(file);
         
@@ -153,8 +160,8 @@
             const payload = {
                 action: "create",
                 id: generateId(),
-                tglAcara: tglAcara, // Kirim Tgl Acara
-                tglCair: tglCair,   // Kirim Tgl Cair
+                tglAcara: tglAcara,
+                tglCair: tglCair,
                 kegiatan: kegiatan,
                 honor: honor,
                 fileName: file.name,
@@ -170,15 +177,15 @@
             .then(data => {
                 loadingOverlay.style.display = "none";
                 if(data.result === 'success') {
-                    alert("✅ Data Berhasil Disimpan!");
+                    alert("✅ Sukses! Data & Foto tersimpan.");
                     form.reset();
                 } else {
-                    alert("❌ Gagal menyimpan: " + data.error);
+                    alert("❌ Gagal: " + data.error);
                 }
             })
             .catch(error => {
                 loadingOverlay.style.display = "none";
-                alert("❌ Terjadi kesalahan jaringan.");
+                alert("❌ Error Jaringan/File terlalu besar.");
                 console.error(error);
             });
         };
