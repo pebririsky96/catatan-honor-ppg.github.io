@@ -15,34 +15,32 @@
         #app-page { display: none; width: 100%; max-width: 500px; padding: 15px; box-sizing: border-box; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        h2 { margin-top: 0; color: #333; text-align: center; margin-bottom: 20px; font-size: 22px; }
+        h2 { margin-top: 0; color: #333; text-align: center; margin-bottom: 20px; font-size: 20px; }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 14px;}
         
         /* FORM INPUTS */
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 14px; }
         
-        /* Input Styling agar enak di HP */
-        input[type="text"], input[type="password"], input[type="number"], input[type="date"] { 
-            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; /* Font 16px mencegah zoom otomatis di iPhone */
+        /* Input Styling */
+        input, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; 
         }
         
-        /* Khusus Input File agar tombolnya besar */
+        /* Style Baris Tanggal Sejajar (Opsional agar rapi) */
+        .row-date { display: flex; gap: 10px; }
+        .row-date .form-group { flex: 1; }
+
+        /* Khusus Input File */
         input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            background: #f8f9fa;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 10px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px; cursor: pointer;
         }
 
         /* BUTTONS */
-        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,123,255,0.3); }
+        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
         button:hover { background-color: #0056b3; }
-        
-        .btn-logout { background: transparent; color: #dc3545; border: 1px solid #dc3545; padding: 5px 12px; font-size: 12px; width: auto; margin: 0; box-shadow: none; }
-        
+        .btn-logout { background: transparent; color: #dc3545; border: 1px solid #dc3545; padding: 5px 12px; font-size: 12px; width: auto; margin: 0; }
+
         #login-error { color: red; margin-top: 15px; font-size: 14px; display: none; }
 
         /* LOADING */
@@ -56,12 +54,8 @@
     <div id="login-page">
         <div class="login-box">
             <h3>Login Petugas</h3>
-            <div class="form-group">
-                <input type="text" id="username" placeholder="Username" autocapitalize="none">
-            </div>
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Password">
-            </div>
+            <div class="form-group"><input type="text" id="username" placeholder="Username" autocapitalize="none"></div>
+            <div class="form-group"><input type="password" id="password" placeholder="Password"></div>
             <button onclick="handleLogin()">MASUK</button>
             <p id="login-error">Username / Password Salah</p>
         </div>
@@ -74,22 +68,36 @@
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
             
-            <h2>Input Honor Kegiatan</h2>
+            <h2>Input Data Kegiatan & Honor</h2>
             
             <form id="honorForm">
-                <div class="form-group">
-                    <label>Tanggal Acara</label>
-                    <input type="date" id="tglAcara" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Tanggal Pencairan</label>
-                    <input type="date" id="tglCair" required>
-                </div>
-
+                
                 <div class="form-group">
                     <label>Nama Kegiatan</label>
-                    <input type="text" id="kegiatan" required placeholder="Nama kegiatan...">
+                    <input type="text" id="kegiatan" required placeholder="Contoh: Seminar Nasional">
+                </div>
+
+                <div class="row-date">
+                    <div class="form-group">
+                        <label>Tgl Mulai</label>
+                        <input type="date" id="tglMulai" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tgl Berakhir</label>
+                        <input type="date" id="tglAkhir" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Lokasi Kegiatan</label>
+                    <input type="text" id="lokasi" required placeholder="Contoh: Gedung A / Zoom">
+                </div>
+
+                <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
+
+                <div class="form-group">
+                    <label>Tanggal Pencairan Honor</label>
+                    <input type="date" id="tglCair" required>
                 </div>
 
                 <div class="form-group">
@@ -98,9 +106,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label style="color:#d9534f;">📸 Ambil Foto (Kamera) / Upload File</label>
+                    <label style="color:#d9534f;">📸 Bukti Pembayaran (Foto/PDF)</label>
                     <input type="file" id="bukti" accept="image/*,application/pdf" required>
-                    <small style="color:gray; font-size:11px; display:block; margin-top:5px;">Bisa foto langsung atau pilih file PDF</small>
                 </div>
 
                 <button type="submit" id="submitBtn">Kirim Data</button>
@@ -110,18 +117,16 @@
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <div id="loading-text" style="font-weight:bold; color:#555;">Sedang Upload...</div>
+        <div id="loading-text" style="font-weight:bold; color:#555;">Sedang Menyimpan...</div>
     </div>
 
 <script>
-    // URL SCRIPT GOOGLE APPS SCRIPT ANDA
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwrBQ_5VZ0h6w1AKAvVSKit4ylNyGzYtoQN_C_hge4Ouw5pCU-BG-AQWTg7DauF37CYtA/exec';
+    // URL DEPLOYMENT SCRIPT ANDA
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIUpzn_aQpr-idC5eXLPCC1tA16AeXcgT4hgGaXhK83pbZVrs2SLbrB7W2fNJC7ZeyQA/exec';
 
     function handleLogin() {
         const u = document.getElementById('username').value;
         const p = document.getElementById('password').value;
-        
-        // Login Hardcode
         if(u.toLowerCase() === 'ppg' && p === 'fkipbagus') {
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('app-page').style.display = 'block';
@@ -141,16 +146,16 @@
         e.preventDefault();
         loadingOverlay.style.display = "flex";
 
-        const tglAcara = document.getElementById('tglAcara').value;
-        const tglCair = document.getElementById('tglCair').value;
+        // Ambil Value dari semua Input Baru
         const kegiatan = document.getElementById('kegiatan').value;
+        const tglMulai = document.getElementById('tglMulai').value;
+        const tglAkhir = document.getElementById('tglAkhir').value;
+        const lokasi = document.getElementById('lokasi').value;
+        const tglCair = document.getElementById('tglCair').value;
         const honor = document.getElementById('honor').value;
         const fileInput = document.getElementById('bukti');
         const file = fileInput.files[0];
 
-        // Kompresi/Resize gambar bisa ditambahkan di sini jika perlu, 
-        // tapi untuk sekarang kita kirim langsung (hati-hati jika file > 5MB)
-        
         const reader = new FileReader();
         reader.readAsDataURL(file);
         
@@ -160,9 +165,11 @@
             const payload = {
                 action: "create",
                 id: generateId(),
-                tglAcara: tglAcara,
-                tglCair: tglCair,
                 kegiatan: kegiatan,
+                tglMulai: tglMulai,
+                tglAkhir: tglAkhir,
+                lokasi: lokasi,
+                tglCair: tglCair,
                 honor: honor,
                 fileName: file.name,
                 mimeType: file.type,
@@ -177,7 +184,7 @@
             .then(data => {
                 loadingOverlay.style.display = "none";
                 if(data.result === 'success') {
-                    alert("✅ Sukses! Data & Foto tersimpan.");
+                    alert("✅ Sukses! Data tersimpan.");
                     form.reset();
                 } else {
                     alert("❌ Gagal: " + data.error);
@@ -185,7 +192,7 @@
             })
             .catch(error => {
                 loadingOverlay.style.display = "none";
-                alert("❌ Error Jaringan/File terlalu besar.");
+                alert("❌ Error Jaringan.");
                 console.error(error);
             });
         };
